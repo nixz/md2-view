@@ -71,7 +71,7 @@ VERTICES should have the form (#(x y z) #(x y z) ...)
 Return a new bbox instance."  
   (let ((coords (make-array 6 :initial-contents
                             '(1e10 1e10 1e10 -1e10 -1e10 -1e10))))
-    (loop for v being each element in vertices do
+    (loop for v in vertices do
          (destructuring-bind (x y z) (v->l v)
            (setf (aref coords 0) (min x (aref coords 0))
                  (aref coords 1) (min y (aref coords 1))

@@ -303,13 +303,13 @@ Return a new bbox instance."
     (bb:find-bbox
      (cond ((model-evaluated-p model)
             (loop
-               for v being each element in vertices
+               for v across vertices
                collect (vertex-v v)))
            (t
             (let ((scale (frame-scale frame))
                   (translate (frame-translate frame)))
               (loop
-                 for v being each element in vertices
+                 for v across vertices
                  collect (vector
                           (+ (* (aref (vertex-v v) 0)
                                 (aref scale 0))
@@ -443,6 +443,6 @@ skin-file-names: ~S
           (length (model-triangles model))
           (length (model-frames model))
           (loop
-               for f being each element in (model-frames model)
+               for f across (model-frames model)
                collecting (frame-name f)))
   (force-output))

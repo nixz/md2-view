@@ -34,9 +34,16 @@
 
 (in-package :3d-math)
 
-(defconstant +i-axis+ #(1.0d0 0.0d0 0.0d0))
-(defconstant +j-axis+ #(0.0d0 1.0d0 0.0d0))
-(defconstant +k-axis+ #(0.0d0 0.0d0 1.0d0))
+(defmacro define-constant (name value &optional doc)
+  "ANSI-compliant replacement for `defconstant'. cf SBCL Manual 2.3.4."
+  `(defconstant ,name (if (boundp ',name)
+                          (symbol-value ',name)
+                          ,value)
+     ,@(when doc (list doc))) "")
+
+(define-constant +i-axis+ #(1.0d0 0.0d0 0.0d0))
+(define-constant +j-axis+ #(0.0d0 1.0d0 0.0d0))
+(define-constant +k-axis+ #(0.0d0 0.0d0 1.0d0))
 
 (defmacro d->r (d)
   `(* 0.017453292519943295d0 ,d))

@@ -32,11 +32,12 @@
 (defparameter *t-val* nil)             ; animation interpolation value
 
 (defmacro v->l (v)
-  `(map 'list #'identity ,v))
+  `(coerce ,v 'list))
 
 ;; lotta shit just for an axis indicator!
 ;; I was going to disable :cull-face, but it looks a little
 ;; better if the arrow tip that's facing away gets culled.
+;; TODO: display list
 (defun render-gnome ()
   "Render XYZ axis @ the origin with red green and blue colors, respectively.
 Each axis will be approximately 1/8 the screen width."
@@ -94,8 +95,7 @@ Each axis will be approximately 1/8 the screen width."
                        (md2:bounding-box m *frame-n*))
                      ;(md2:model-bbox m))
                      *models*))
-    (destructuring-bind (x1 y1 z1 x2 y2 z2) (map 'list #'identity
-                                                 (bb:bbox-coords b))
+    (destructuring-bind (x1 y1 z1 x2 y2 z2) (v->l (bb:bbox-coords b))
       (gl:with-primitives :quad-strip
         (gl:vertex x1 y1 z1)
         (gl:vertex x1 y1 z2)
@@ -141,12 +141,16 @@ Each axis will be approximately 1/8 the screen width."
                 (to-v (md2:vertex-v to-vertice))
                 (from-n (md2:vertex-n from-vertice))
                 (to-n (md2:vertex-n to-vertice)))
-           (apply #'gl:normal (map 'list #'identity
-                                   (3d:v+v from-n (3d:v*s (3d:v-v to-n from-n)
-                                                          *t-val*))))
-           (apply #'gl:vertex (map 'list #'identity
-                                   (3d:v+v from-v (3d:v*s (3d:v-v to-v from-v)
-                                                          *t-val*))))))
+           (apply #'gl:normal (v->l
+                               (3d:v+v from-n
+                                       (3d:v*s (3d:v-v to-n
+                                                       from-n)
+                                               *t-val*))))
+           (apply #'gl:vertex (v->l
+                               (3d:v+v from-v
+                                       (3d:v*s (3d:v-v to-v
+                                                       from-v)
+                                               *t-val*))))))
        (gl:end))))
 
 (defun render-frame (model)
@@ -166,12 +170,10 @@ Each axis will be approximately 1/8 the screen width."
            (gl:begin :triangle-strip))
        (dotimes (j (abs cmd))           ; each vertex
          (gl:tex-coord (aref gl-commmands (incf i))
-                       (aref gl-commmands (incf i)))
+                       (aref gl-com () mmands (incf i)))
          (let ((v (aref frame-vertices (aref gl-commmands (incf i)))))
-           (apply #'gl:normal (map 'list #'identity
-                                   (md2:vertex-n v)))
-           (apply #'gl:vertex (map 'list #'identity
-                                   (md2:vertex-v v)))))
+           (apply #'gl:normal (v->l (md2:vertex-n v)))
+           (apply #'gl:vertex (v->l (md2:vertex-v v)))))
        (gl:end))))
 
 (defun render ()
@@ -233,7 +235,7 @@ Each axis will be approximately 1/8 the screen width."
   (dolist (file-name file-names)
     (push (md2:load-model file-name) *models*))
   (setf *frame-count* (length (md2:model-frames (car *models*)))
-        *triangle-count* (loop for m being each element in *models*
+        *triangle-count* (loop for m in *models*
                             sum (length (md2:model-triangles m))))
   ;; initialize the cad view with the union of all model's bounding boxes
   ;; at frame 0

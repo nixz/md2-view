@@ -39,7 +39,7 @@
   "#(x y z)")
 
 (defmacro v->l (v)
-  `(map 'list #'identity ,v))
+  `(coerce ,v 'list))
 
 (defun init (&key (world-h 20) (center-of-rotation #(0 0 0)) (rot-factor 1)
              (zoom-factor .01))
@@ -49,7 +49,9 @@ Args are self-explanatory, yes?"
         *center-of-rotation* center-of-rotation
         *rot-factor* rot-factor
         *zoom-factor* zoom-factor)
-  (iso-view))
+  (iso-view)
+  ;; TODO: need a (fit) right here
+  )
 
 (defun ortho ()
   "Update the projection matrix, for resize, pan, and zoom ops"
