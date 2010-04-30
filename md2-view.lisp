@@ -234,6 +234,11 @@ Each axis will be approximately 1/8 the screen width."
   ;; load the models
   (dolist (file-name file-names)
     (push (md2:load-model file-name) *models*))
+  ;; all must have the same frame count (I think that's how MD2 works, hrm)
+  (unless (apply #'= (mapcar (lambda (m)
+                               (length (md2:model-frames m)))
+                             *models*))
+    (error "Loaded models do not have the same number of frames."))
   (setf *frame-count* (length (md2:model-frames (car *models*)))
         *triangle-count* (loop for m in *models*
                             sum (length (md2:model-triangles m))))
@@ -278,7 +283,7 @@ Interface:
   (force-output))
 
 (defun run (file-names &key (w 500) (h 500))
-  (unless (consp file-names))
+  (unless (consp file-names)
     (warn "Need a list of at least one model to load, exiting...")
     (return-from run))
   (sdl:with-init ()
@@ -286,8 +291,8 @@ Interface:
                 :hw t
                 :opengl t
                 :opengl-attributes '((:sdl-gl-doublebuffer 1)
-;;                                      (:sdl-gl-swap-control 1)
-;;                                      (:sdl-gl-accelerated-visual 1)
+                                     ;; (:sdl-gl-swap-control 1)
+                                     ;; (:sdl-gl-accelerated-visual 1)
                                      )
                 :title-caption ""
                 :icon-caption "")
