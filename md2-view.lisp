@@ -17,7 +17,7 @@
 (load "bounding-box.lisp")
 
 ;; some of these state vars I don't really need, could use gl:get-foo
-(defparameter *models* nil)
+(defparameter *models* nil)            ; list of loaded model instances
 (defparameter *triangle-count* nil)    ; number of triangles loaded 
 (defparameter *frame-count* nil)       ; number of frames in the loaded model
 (defparameter *lighting-p* t)          ; t enable, nil disable
@@ -278,8 +278,8 @@ Interface:
   (force-output))
 
 (defun run (file-names &key (w 500) (h 500))
-  (unless (and file-names)
-    (warn "Need at least one model to load")
+  (unless (consp file-names))
+    (warn "Need a list of at least one model to load, exiting...")
     (return-from run))
   (sdl:with-init ()
     (sdl:window w h
