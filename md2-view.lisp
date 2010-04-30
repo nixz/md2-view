@@ -119,24 +119,24 @@ Each axis will be approximately 1/8 the screen width."
          (from-frame-vertices (md2:frame-vertices from-frame))
          (to-frame (aref (md2:model-frames model) (+ *frame-n* 1)))
          (to-frame-vertices (md2:frame-vertices to-frame))
-         (gl-commmands (md2:model-gl-commands model)))
+         (gl-commands (md2:model-gl-commands model)))
     (loop
        with i = -1 and
        cmd = 0
        do
-       (setf cmd (aref gl-commmands (incf i)))
+       (setf cmd (aref gl-commands (incf i)))
        (when (zerop cmd)
          (return))
        (if (< cmd 0)
            (gl:begin :triangle-fan)
            (gl:begin :triangle-strip))
        (dotimes (j (abs cmd))           ; each vertex
-         (gl:tex-coord (aref gl-commmands (incf i))
-                       (aref gl-commmands (incf i)))
+         (gl:tex-coord (aref gl-commands (incf i))
+                       (aref gl-commands (incf i)))
          (let* ((from-vertice (aref from-frame-vertices
-                                    (aref gl-commmands (incf i))))
+                                    (aref gl-commands (incf i))))
                 (to-vertice (aref to-frame-vertices
-                                  (aref gl-commmands i)))
+                                  (aref gl-commands i)))
                 (from-v (md2:vertex-v from-vertice))
                 (to-v (md2:vertex-v to-vertice))
                 (from-n (md2:vertex-n from-vertice))
@@ -157,21 +157,21 @@ Each axis will be approximately 1/8 the screen width."
   "Render *FRAME-N* of MODEL"
   (let* ((frame (aref (md2:model-frames model) *frame-n*))
          (frame-vertices (md2:frame-vertices frame))
-         (gl-commmands (md2:model-gl-commands model)))
+         (gl-commands (md2:model-gl-commands model)))
     (loop
        with i = -1 and
        cmd = 0
        do
-       (setf cmd (aref gl-commmands (incf i)))
+       (setf cmd (aref gl-commands (incf i)))
        (when (zerop cmd)
          (return))
        (if (< cmd 0)
            (gl:begin :triangle-fan)
            (gl:begin :triangle-strip))
        (dotimes (j (abs cmd))           ; each vertex
-         (gl:tex-coord (aref gl-commmands (incf i))
-                       (aref gl-com () mmands (incf i)))
-         (let ((v (aref frame-vertices (aref gl-commmands (incf i)))))
+         (gl:tex-coord (aref gl-commands (incf i))
+                       (aref gl-commands (incf i)))
+         (let ((v (aref frame-vertices (aref gl-commands (incf i)))))
            (apply #'gl:normal (v->l (md2:vertex-n v)))
            (apply #'gl:vertex (v->l (md2:vertex-v v)))))
        (gl:end))))
