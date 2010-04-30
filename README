@@ -1,0 +1,42 @@
+md2-view is just that, an Id MD2 model viewer. Nothing fancy. I'm in the
+process of learning Common Lisp. In other words, don't look for elite Lisp
+code here. ;)
+
+Dependencies:
+  lispbuilder-sdl
+  lispbuilder-sdl-image
+  cl-opengl
+
+Running:   
+  Load md2-view.lisp.
+  The main function is MD2-VIEW:RUN.
+  Give it a list of model file names to load.
+
+Interface:
+  * Mouse
+      Left mouse button to rotate
+      Middle button to zoom
+      Right button to pan
+  * Keys
+      1 - top view
+      2 - right view
+      3 - front view
+      4 - isometric view
+      a - toggle animation (animation will not start at the last frame)
+      b - toggle bounding boxes (disabled during animation)
+      c - cycle line -> point -> face polygon modes
+      g - toggle gnome (disabled during animation)
+      h - print these commands
+      i - print loaded model's info to stdout
+      l - toggle lighting (default OpenGL lighting is implemented)
+      n - next frame (disabled during animation)
+      p - previous frame (disabled during animation)
+      q - exit
+      s - cycle smooth -> flat shade models
+      t - toggle textures 
+
+TODO:
+  * load .tga textures
+  * fit function
+  * zoom box function
+  * more error checking (ensure frame count's match, catch zoom overflow)
