@@ -27,7 +27,7 @@ Interface:
       c - cycle line -> point -> face polygon modes
       g - toggle gnome (disabled during animation)
       h - print these commands
-      i - print loaded model's info to stdout
+      i - print loaded models info to stdout
       l - toggle lighting (default OpenGL lighting is implemented)
       n - next frame (disabled during animation)
       p - previous frame (disabled during animation)
@@ -39,4 +39,4 @@ TODO:
   * load .tga textures
   * fit function
   * zoom box function
-  * more error checking (ensure frame count's match, catch zoom overflow)
+  * more error checking (ensure frame counts match, catch zoom overflow)
