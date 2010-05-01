@@ -17,6 +17,7 @@ Interface:
       Left mouse button to rotate
       Middle button to zoom
       Right button to pan
+      Ctrl+Left mouse button to drag a zoom box
   * Keys
       1 - top view
       2 - right view
