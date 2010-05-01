@@ -228,9 +228,7 @@ Each axis will be approximately 1/8 the screen width."
   (gl:clear-color 0 0 .2 1)
   (gl:shade-model :smooth)
   (gl:enable :depth-test :cull-face)
-  (gl:cull-face :front)
-  (gl:enable :texture-2d)
-  (gl:point-size 3))
+  (gl:cull-face :front))
 
 (defun init-lighting ()
   (gl:enable :lighting :light0))
@@ -282,6 +280,7 @@ Interface:
       Left mouse button to rotate
       Middle button to zoom
       Right button to pan
+      Ctrl+Left mouse button to drag a zoom box
   * Keys
       1 - top view
       2 - right view
@@ -301,7 +300,7 @@ Interface:
       t - toggle textures")
   (force-output))
 
-(defun run (file-names &key (w 500) (h 500))
+(defun run (file-names &key (w 300) (h 300))
   (unless (consp file-names)
     (warn "Need a list of at least one model to load, exiting...")
     (return-from run))
@@ -357,7 +356,7 @@ Interface:
                           (unless *animate-p*
                             (setf *gnome-p* (not *gnome-p*))))
                          ((:sdl-key-i)
-                          (md2:print-model-info (car *models*)))
+                          (mapcar #'md2:print-model-info *models*))
                          ((:sdl-key-h)
                           (help))
                          ((:sdl-key-l)  ; lighting on/off

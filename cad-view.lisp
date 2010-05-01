@@ -35,7 +35,8 @@
 
 (defparameter *win-w* nil)
 (defparameter *win-h* nil)
-(defparameter *aspect* nil)
+(defparameter *win-aspect* nil
+  "*win-w* / *win-h*")
 (defparameter *world-w* nil)
 (defparameter *world-h* nil)
 (defparameter *world-center* nil
@@ -88,17 +89,15 @@ Args are self-explanatory, yes?"
         *zoom-factor* zoom-factor
         *box-zooming-p* nil
         *world-center* #(.0 .0))
-  (iso-view)
-  ;; TODO: need a (fit) right here
-  )
+  (iso-view))
 
 (defun ortho ()
   "Update the projection matrix, for resize, pan, and zoom ops"
   (gl:matrix-mode :projection)
   (gl:load-identity)
-  (if (> *aspect* 0)
-      (setf *world-w* (* *world-h* *aspect*))
-      (setf *world-w* (/ *world-h* *aspect*)))
+  (if (> *win-aspect* 0)
+      (setf *world-w* (* *world-h* *win-aspect*))
+      (setf *world-w* (/ *world-h* *win-aspect*)))
   (let ((cx (aref *world-center* 0))
         (cy (aref *world-center* 1)))
     (force-output)
@@ -116,7 +115,7 @@ Args are self-explanatory, yes?"
     (return-from resize))
   (setf *win-w* win-w
         *win-h* win-h
-        *aspect* (/ (coerce win-w 'float) win-h))
+        *win-aspect* (/ (coerce win-w 'float) win-h))
   (gl:viewport 0 0 win-w win-h)
   (ortho))
 
@@ -169,14 +168,15 @@ P1 and P2 should have to form #(x y) in world coordinates"
          (y2 (aref p2 1))
          (w (abs (- x1 x2)))
          (h (abs (- y1 y2))))
-    (setf *world-center* (vector (* (+ x1 x2) .5)
-                                 (* (+ y1 y2) .5)))
-    (if (> h w)
-        (setf *world-h* h)
-        (if (> *aspect* 0)
-            (setf *world-h* (/ w *aspect*))
-            (setf *world-h* (* w *aspect*)))))
-  (ortho))
+    (unless (some #'zerop `(,h ,w))     ; dont zoom a zero-length box
+      (setf *world-center* (vector (* (+ x1 x2) .5)
+                                   (* (+ y1 y2) .5)))
+      (if (> h w)
+          (setf *world-h* h)
+          (if (> *win-aspect* 0)
+              (setf *world-h* (/ w *win-aspect*))
+              (setf *world-h* (* w *win-aspect*))))
+      (ortho))))
 
 (defun fit-zoom-box ()
   (fit *zoom-box-p1* *zoom-box-p2*))
