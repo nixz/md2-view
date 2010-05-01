@@ -176,6 +176,23 @@ Each axis will be approximately 1/8 the screen width."
            (apply #'gl:vertex (v->l (md2:vertex-v v)))))
        (gl:end))))
 
+(defun render-zoom-box ()
+  (gl:push-attrib :lighting)
+  (gl:disable :lighting :depth-test :cull-face)
+  (gl:polygon-mode :front-and-back :line)
+  (gl:color 1 1 0)
+  (gl:with-pushed-matrix
+    (gl:load-identity)
+    (let ((p1 (cad-view:zoom-box-p1))
+          (p2 (cad-view:zoom-box-p2)))
+      (gl:rect (aref p1 0)
+               (aref p1 1)
+               (aref p2 0)
+               (aref p2 1))))
+  (gl:pop-attrib)
+  (gl:enable :depth-test :cull-face)
+  (gl:polygon-mode :front-and-back *polygon-mode*))
+
 (defun render ()
   "Render everything"
   (gl:clear :color-buffer-bit :depth-buffer-bit)
@@ -203,6 +220,8 @@ Each axis will be approximately 1/8 the screen width."
     (render-bounding-boxes))
   (when *gnome-p*
     (render-gnome))
+  (when (cad-view:box-zooming-p)
+    (render-zoom-box))
   (sdl:update-display))
 
 (defun init-gl ()
@@ -303,6 +322,10 @@ Interface:
     (sdl:with-events ()
       (:quit-event () t)
       (:video-expose-event () (render))
+      (:key-up-event (:key key)
+                       (case key
+                         ((:sdl-key-lctrl)
+                          (cad-view:finish-zoom-box 0 0))))
       (:key-down-event (:key key)
                        (case key
                          ((:sdl-key-a)
@@ -388,10 +411,21 @@ Interface:
                           (cad-view:front-view))
                          ((:sdl-key-4)
                           (cad-view:iso-view))))
+      (:mouse-button-down-event (:button b :state s :x x :y y)
+                                (when (and (eq b sdl:sdl-button-left)
+                                           (sdl:key-down-p :sdl-key-lctrl))
+                                  (cad-view:start-zoom-box x y)))
+      (:mouse-button-up-event (:button b :state s :x x :y y)
+                                (when (and (cad-view:box-zooming-p)
+                                           (eq b sdl:sdl-button-left)
+                                           (sdl:key-down-p :sdl-key-lctrl))
+                                  (cad-view:finish-zoom-box x y)))
       ;; rotate, zoom, pan
-      (:mouse-motion-event (:state s :x-rel dx :y-rel dy)
+      (:mouse-motion-event (:state s :x-rel dx :y-rel dy :x x :y y)
                            (cond ((eq s sdl:sdl-button-left)
-                                  (cad-view:rotate dx dy))
+                                  (if (cad-view:box-zooming-p)
+                                      (cad-view:update-zoom-box x y)
+                                      (cad-view:rotate dx dy)))
                                  ((eq s sdl:sdl-button-middle)
                                   (cad-view:zoom dy))
                                  ((= s 4)

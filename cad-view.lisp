@@ -13,6 +13,12 @@
            rotate
            zoom
            pan
+           start-zoom-box
+           update-zoom-box
+           finish-zoom-box
+           zoom-box-p1
+           zoom-box-p2
+           box-zooming-p
            matrix
            set-center-of-rotation
            top-view
@@ -37,9 +43,38 @@
 (defparameter *zoom-factor* nil)
 (defparameter *center-of-rotation* nil
   "#(x y z)")
+(defparameter *box-zooming-p* nil)
+(defparameter *zoom-box-p1* nil
+  "For fit and zoom box operations")
+(defparameter *zoom-box-p2* nil
+  "For fit and zoom box operations")
+
+;; ======================================================================
+;; Utility
 
 (defmacro v->l (v)
   `(coerce ,v 'list))
+
+(defun get-pixel-size (proj-matrix)
+  "Get the world size of a pixel.
+Return the values: width height."
+  (values (/ 2 (* (aref proj-matrix 0) *win-w*))
+          (/ 2 (* (aref proj-matrix 5) *win-h*))))
+
+(defun screen->world (x y)
+  "Convert the screen coordinates X and Y to world coordinates.
+Return #(x y)."
+  (multiple-value-bind
+        (pw ph)
+      (get-pixel-size (gl:get-float :projection-matrix))
+    (vector (+ (- (aref *world-center* 0)
+                  (* *world-w* .5))
+               (* pw x))
+            (+ (- (aref *world-center* 1)
+                  (* *world-h* .5))
+               (* ph (- *win-h* y))))))
+
+;; ======================================================================
 
 (defun init (&key (world-h 20) (center-of-rotation #(0 0 0)) (rot-factor 1)
              (zoom-factor .01))
@@ -48,7 +83,9 @@ Args are self-explanatory, yes?"
   (setf *world-h* world-h
         *center-of-rotation* center-of-rotation
         *rot-factor* rot-factor
-        *zoom-factor* zoom-factor)
+        *zoom-factor* zoom-factor
+        *box-zooming-p* nil
+        *world-center* #(.0 .0))
   (iso-view)
   ;; TODO: need a (fit) right here
   )
@@ -57,9 +94,12 @@ Args are self-explanatory, yes?"
   "Update the projection matrix, for resize, pan, and zoom ops"
   (gl:matrix-mode :projection)
   (gl:load-identity)
-  (setf *world-w* (* *world-h* *aspect*))
+  (if (> *aspect* 0)
+      (setf *world-w* (* *world-h* *aspect*))
+      (setf *world-w* (/ *world-h* *aspect*)))
   (let ((cx (aref *world-center* 0))
         (cy (aref *world-center* 1)))
+    (force-output)
     (gl:ortho (- cx (* *world-w* .5))
               (+ cx (* *world-w* .5))
               (- cy (* *world-h* .5))
@@ -76,9 +116,6 @@ Args are self-explanatory, yes?"
         *win-h* win-h
         *aspect* (/ (coerce win-w 'float) win-h))
   (gl:viewport 0 0 win-w win-h)
-  (unless *world-center*         ; initialize the world center on first resize
-    (setf *world-center* (vector (/ (* *world-h* *aspect*) 2)
-                                 (/ *world-h* 2))))
   (ortho))
 
 (defun set-center-of-rotation (p)
@@ -88,12 +125,6 @@ Args are self-explanatory, yes?"
 (defun matrix ()
   "Return the current modelview matrix"
   *modelview-matrix*)
-
-(defun get-pixel-size (proj-matrix)
-  "Get the world size of a pixel.
-Return the values: width height."
-  (values (/ (* 2 (/ 1 (aref proj-matrix 0))) *win-w*)
-          (/ (* 2 (/ 1 (aref proj-matrix 5))) *win-h*)))
 
 (defun rotate (dx dy)
   "Rotate about *CENTER-OF-ROTATION*.
@@ -126,6 +157,39 @@ DX and DY are last relative mouse deltas."
     (decf (aref *world-center* 0) (* pw dx))
     (incf (aref *world-center* 1) (* ph dy))
     (ortho)))
+
+;; ======================================================================
+;; Zoom box
+
+(defun box-zooming-p ()
+  *box-zooming-p*)
+
+(defun zoom-box-p1 ()
+  *zoom-box-p1*)
+
+(defun zoom-box-p2 ()
+  *zoom-box-p2*)
+
+(defun start-zoom-box (x y)
+  "Initialize a draggable zoom box.
+X and Y are the current mouse screen coordinates."
+  (let ((wc (screen->world x y)))
+    (setf *box-zooming-p* t
+          *zoom-box-p1* wc
+          *zoom-box-p2* wc)))
+
+(defun update-zoom-box (x y)
+  "Update *zoom-box-p2*"
+  (setf *zoom-box-p2* (screen->world x y)))
+
+(defun finish-zoom-box (x y)
+  "Terminate a draggable zoom box.
+X and Y are the current mouse screen coordinates."
+  (setf *box-zooming-p* nil
+        *zoom-box-p2* (screen->world x y)))
+
+;; ======================================================================
+;; Quick views
 
 (defun top-view ()
   "Rotate to view the XY Plane"
