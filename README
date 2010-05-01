@@ -37,5 +37,6 @@ Interface:
       t - toggle textures 
 
 TODO:
+  * Use Pathnames for all file ops
   * load .tga textures
   * more error checking (catch zoom overflow)
