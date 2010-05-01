@@ -19,6 +19,8 @@
            zoom-box-p1
            zoom-box-p2
            box-zooming-p
+           fit
+           fit-zoom-box
            matrix
            set-center-of-rotation
            top-view
@@ -157,6 +159,27 @@ DX and DY are last relative mouse deltas."
     (decf (aref *world-center* 0) (* pw dx))
     (incf (aref *world-center* 1) (* ph dy))
     (ortho)))
+
+(defun fit (p1 p2)
+  "Zoom to the 2d box defined by P1 and P2.
+P1 and P2 should have to form #(x y) in world coordinates"
+  (let* ((x1 (aref p1 0))
+         (y1 (aref p1 1))
+         (x2 (aref p2 0))
+         (y2 (aref p2 1))
+         (w (abs (- x1 x2)))
+         (h (abs (- y1 y2))))
+    (setf *world-center* (vector (* (+ x1 x2) .5)
+                                 (* (+ y1 y2) .5)))
+    (if (> h w)
+        (setf *world-h* h)
+        (if (> *aspect* 0)
+            (setf *world-h* (/ w *aspect*))
+            (setf *world-h* (* w *aspect*)))))
+  (ortho))
+
+(defun fit-zoom-box ()
+  (fit *zoom-box-p1* *zoom-box-p2*))
 
 ;; ======================================================================
 ;; Zoom box

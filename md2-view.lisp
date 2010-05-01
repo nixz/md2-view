@@ -419,7 +419,8 @@ Interface:
                                 (when (and (cad-view:box-zooming-p)
                                            (eq b sdl:sdl-button-left)
                                            (sdl:key-down-p :sdl-key-lctrl))
-                                  (cad-view:finish-zoom-box x y)))
+                                  (cad-view:finish-zoom-box x y)
+                                  (cad-view:fit-zoom-box)))
       ;; rotate, zoom, pan
       (:mouse-motion-event (:state s :x-rel dx :y-rel dy :x x :y y)
                            (cond ((eq s sdl:sdl-button-left)

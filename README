@@ -37,6 +37,4 @@ Interface:
 
 TODO:
   * load .tga textures
-  * fit function
-  * zoom box function
   * more error checking (catch zoom overflow)
