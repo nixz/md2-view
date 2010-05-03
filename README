@@ -23,9 +23,13 @@ Interface:
       2 - right view
       3 - front view
       4 - isometric view
+      5 - left view
+      6 - bottom view
+      7 - back view      
       a - toggle animation (animation will not start at the last frame)
       b - toggle bounding boxes (disabled during animation)
       c - cycle line -> point -> face polygon modes
+      f - fit all loaded models in the view
       g - toggle gnome (disabled during animation)
       h - print these commands
       i - print loaded models info to stdout

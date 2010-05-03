@@ -15,6 +15,7 @@
            mi mj mk mt
            cross-product
            make-4x4-matrix
+           make-4x4-matrix-from-gl-matrix
            normalize
            normalize!
            magnitude
@@ -80,6 +81,16 @@ not supplied."
   "Return a new row-major 4x4 matrix.
 If initial-contents is not supplied, the identity matrix is returned."
   (make-array '(4 4) :initial-contents initial-contents))
+
+(defun make-4x4-matrix-from-gl-matrix (m)
+  "Create a 3d-math matrix from an OpenGL matrix."
+  (make-array
+   '(4 4)
+   :initial-contents
+   `(,(vector (aref m 0) (aref m 1) (aref m 2) (aref m 3))
+      ,(vector (aref m 4) (aref m 5) (aref m 6) (aref m 7))
+      ,(vector (aref m 8) (aref m 9) (aref m 10) (aref m 11))
+      ,(vector (aref m 12) (aref m 13) (aref m 14) (aref m 15)))))
 
 (defun mi (m)
   "Return a copy of the I (X) vector of m."

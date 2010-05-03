@@ -193,6 +193,21 @@ Each axis will be approximately 1/8 the screen width."
   (gl:enable :depth-test :cull-face)
   (gl:polygon-mode :front-and-back *polygon-mode*))
 
+(defun debug-render-bbox (bbox)
+  (gl:push-attrib :lighting)
+  (gl:disable :lighting :depth-test :cull-face)
+  (gl:polygon-mode :front-and-back :line)
+  (gl:color 1 1 1)
+  (gl:with-pushed-matrix
+    (gl:load-identity)
+    (gl:rect (bb:bbox-left bbox)
+             (bb:bbox-back bbox)
+             (bb:bbox-right bbox)
+             (bb:bbox-front bbox)))
+  (gl:pop-attrib)
+  (gl:enable :depth-test :cull-face)
+  (gl:polygon-mode :front-and-back *polygon-mode*))
+
 (defun render ()
   "Render everything"
   (gl:clear :color-buffer-bit :depth-buffer-bit)
@@ -222,6 +237,7 @@ Each axis will be approximately 1/8 the screen width."
     (render-gnome))
   (when (cad-view:box-zooming-p)
     (render-zoom-box))
+  ;(debug-render-bbox (debug-find-all-bb))
   (sdl:update-display))
 
 (defun init-gl ()
@@ -267,7 +283,8 @@ Each axis will be approximately 1/8 the screen width."
                                                     (md2:model-bbox m))
                                                   *models*))))
   ;; setup the projection matrix
-  (cad-view:resize w h))
+  (cad-view:resize w h)
+  (fit-all-to-view))
 
 (defun update-caption ()
   (sdl:set-caption (format nil "Triangles:~D  Frame:~D of ~D"
@@ -286,21 +303,55 @@ Interface:
       2 - right view
       3 - front view
       4 - isometric view
+      5 - left view
+      6 - bottom view
+      7 - back view      
       a - toggle animation (animation will not start at the last frame)
-      b - toggle bounding boxes (disabled and off during animation)
+      b - toggle bounding boxes (disabled during animation)
       c - cycle line -> point -> face polygon modes
-      g - toggle gnome (disabled and off during animation)
+      f - fit all loaded models in the view
+      g - toggle gnome (disabled during animation)
       h - print these commands
-      i - print loaded models' info to stdout
+      i - print loaded models info to stdout
       l - toggle lighting (default OpenGL lighting is implemented)
       n - next frame (disabled during animation)
       p - previous frame (disabled during animation)
       q - exit
       s - cycle smooth -> flat shade models
+      t - toggle textures 
+      s - cycle smooth -> flat shade models
       t - toggle textures")
   (force-output))
 
-(defun run (file-names &key (w 300) (h 300))
+(defun debug-find-all-bb ()
+  (let* ((mat (3d:make-4x4-matrix-from-gl-matrix (gl:get-float
+                                                  :modelview-matrix))))
+    (bb:find-bbox
+     (mapcan (lambda (m)
+               (mapcar (lambda (v)
+                         (3d:m*v mat (md2:vertex-v v)))
+                       (v->l (md2:frame-vertices
+                              (aref (md2:model-frames m)
+                                    *frame-n*)))))
+             *models*))))
+
+;; XXX: This is not going to scale
+(defun fit-all-to-view ()
+  "Update the projection matrix so all loaded models fit snugly in the view."
+  (let* ((mat (3d:make-4x4-matrix-from-gl-matrix (gl:get-float
+                                                  :modelview-matrix)))
+         (bb (bb:find-bbox
+              (mapcan (lambda (m)
+                        (mapcar (lambda (v)
+                                  (3d:m*v mat (md2:vertex-v v)))
+                                (v->l (md2:frame-vertices
+                                       (aref (md2:model-frames m)
+                                             *frame-n*)))))
+                      *models*))))
+    (cad-view:fit (subseq (bb:bbox-coords bb) 0 3)
+                  (subseq (bb:bbox-coords bb) 3))))
+
+(defun run (file-names &key (w 500) (h 500))
   (unless (consp file-names)
     (warn "Need a list of at least one model to load, exiting...")
     (return-from run))
@@ -352,6 +403,8 @@ Interface:
                             ((:fill)
                              (setf *polygon-mode* :point)
                              (gl:polygon-mode :back :point))))
+                         ((:sdl-key-f)
+                          (fit-all-to-view))
                          ((:sdl-key-g)
                           (unless *animate-p*
                             (setf *gnome-p* (not *gnome-p*))))
@@ -403,18 +456,31 @@ Interface:
                              (setf *texture-p* nil)
                              (gl:disable :texture-2d))))
                          ((:sdl-key-1)
-                          (cad-view:top-view))
+                          (cad-view:top-view)
+                          (fit-all-to-view))
                          ((:sdl-key-2)
-                          (cad-view:right-view))
+                          (cad-view:right-view)
+                          (fit-all-to-view))
                          ((:sdl-key-3)
-                          (cad-view:front-view))
+                          (cad-view:front-view)
+                          (fit-all-to-view))
                          ((:sdl-key-4)
-                          (cad-view:iso-view))))
-      (:mouse-button-down-event (:button b :state s :x x :y y)
+                          (cad-view:iso-view)
+                          (fit-all-to-view))
+                         ((:sdl-key-5)
+                          (cad-view:left-view)
+                          (fit-all-to-view))
+                         ((:sdl-key-6)
+                          (cad-view:bottom-view)
+                          (fit-all-to-view))
+                         ((:sdl-key-7)
+                          (cad-view:back-view)
+                          (fit-all-to-view))))
+      (:mouse-button-down-event (:button b :x x :y y)
                                 (when (and (eq b sdl:sdl-button-left)
                                            (sdl:key-down-p :sdl-key-lctrl))
                                   (cad-view:start-zoom-box x y)))
-      (:mouse-button-up-event (:button b :state s :x x :y y)
+      (:mouse-button-up-event (:button b :x x :y y)
                                 (when (and (cad-view:box-zooming-p)
                                            (eq b sdl:sdl-button-left)
                                            (sdl:key-down-p :sdl-key-lctrl))

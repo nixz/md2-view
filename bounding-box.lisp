@@ -13,7 +13,13 @@
            :find-union-2
            :expand-bbox
            :bbox-coords
-           :bbox-center))
+           :bbox-center
+           :bbox-left
+           :bbox-right
+           :bbox-bottom
+           :bbox-top
+           :bbox-front
+           :bbox-back))
 
 (in-package :bounding-box)
 
@@ -38,10 +44,10 @@ left bottom front 1--------+                  *--------> X+"
   center                                ; center of the box
   left                                  ; minimim X coord
   right                                 ; maximum X coord
-  bottom                                ; minimum Y coord
-  top                                   ; maximim Y coord
-  front                                 ; maximim Z coord
-  back)                                 ; minimum Z coord
+  bottom                                ; minimum Z coord
+  top                                   ; maximum Z coord
+  front                                 ; minimum Y coord
+  back)                                 ; maximum Y coord
   
 (defun create-bbox (coords)
   "Return a new bbox instance from COORDS.

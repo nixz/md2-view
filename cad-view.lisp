@@ -24,8 +24,11 @@
            matrix
            set-center-of-rotation
            top-view
+           bottom-view
            right-view
+           left-view
            front-view
+           back-view
            iso-view))
 
 (in-package :cad-view)
@@ -95,9 +98,7 @@ Args are self-explanatory, yes?"
   "Update the projection matrix, for resize, pan, and zoom ops"
   (gl:matrix-mode :projection)
   (gl:load-identity)
-  (if (> *win-aspect* 0)
-      (setf *world-w* (* *world-h* *win-aspect*))
-      (setf *world-w* (/ *world-h* *win-aspect*)))
+  (setf *world-w* (* *world-h* *win-aspect*))
   (let ((cx (aref *world-center* 0))
         (cy (aref *world-center* 1)))
     (force-output)
@@ -171,11 +172,9 @@ P1 and P2 should have to form #(x y) in world coordinates"
     (unless (some #'zerop `(,h ,w))     ; dont zoom a zero-length box
       (setf *world-center* (vector (* (+ x1 x2) .5)
                                    (* (+ y1 y2) .5)))
-      (if (> h w)
-          (setf *world-h* h)
-          (if (> *win-aspect* 0)
-              (setf *world-h* (/ w *win-aspect*))
-              (setf *world-h* (* w *win-aspect*))))
+      (if (>= (/ w h) *win-aspect*)
+          (setf *world-h* (/ w *win-aspect*))
+          (setf *world-h* h))
       (ortho))))
 
 (defun fit-zoom-box ()
@@ -215,23 +214,46 @@ X and Y are the current mouse screen coordinates."
 ;; Quick views
 
 (defun top-view ()
-  "Rotate to view the XY Plane"
+  "Rotate to view the +X +Y Plane"
   (gl:load-identity)
   (apply #'gl:translate (v->l (3d:v*s *center-of-rotation* -1)))
   (setf *modelview-matrix* (gl:get-float :modelview-matrix)))
 
+(defun bottom-view ()
+  "Rotate to view the +X -Y Plane"
+  (gl:load-identity)
+  (gl:rotate 180 1 0 0)
+  (apply #'gl:translate (v->l (3d:v*s *center-of-rotation* -1)))
+  (setf *modelview-matrix* (gl:get-float :modelview-matrix)))
+
 (defun right-view ()
-  "Rotate to view the YZ Plane"
+  "Rotate to view the +Y +Z Plane"
   (gl:load-identity)
   (gl:rotate -90 1 0 0)
   (gl:rotate -90 0 0 1)
   (apply #'gl:translate (v->l (3d:v*s *center-of-rotation* -1)))
   (setf *modelview-matrix* (gl:get-float :modelview-matrix)))
 
-(defun front-view ()
-  "XZ Plane"
+(defun left-view ()
+  "Rotate to view the -Y +Z Plane"
   (gl:load-identity)
   (gl:rotate -90 1 0 0)
+  (gl:rotate 90 0 0 1)
+  (apply #'gl:translate (v->l (3d:v*s *center-of-rotation* -1)))
+  (setf *modelview-matrix* (gl:get-float :modelview-matrix)))
+
+(defun front-view ()
+  "Rotate to view the +X +Z Plane"
+  (gl:load-identity)
+  (gl:rotate -90 1 0 0)
+  (apply #'gl:translate (v->l (3d:v*s *center-of-rotation* -1)))
+  (setf *modelview-matrix* (gl:get-float :modelview-matrix)))
+
+(defun back-view ()
+  "Rotate to view the -X +Z Plane"
+  (gl:load-identity)
+  (gl:rotate -90 1 0 0)
+  (gl:rotate 180 0 0 1)
   (apply #'gl:translate (v->l (3d:v*s *center-of-rotation* -1)))
   (setf *modelview-matrix* (gl:get-float :modelview-matrix)))
 
