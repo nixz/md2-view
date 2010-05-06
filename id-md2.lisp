@@ -60,39 +60,9 @@
 ;;;
 ;;; S. Edward Dolan <bytecolor@gmail.com>
 ;;; Saturday, April 24 2010
-
-(defpackage :id-md2
-  (:nicknames :md2)
-  (:use :cl)
-  (:export :load-model
-           :bounding-box
-           :model-file-name
-           :model-skin-file-names
-           :model-skin-width
-           :model-skin-height
-           :model-bbox
-           :model-tex-coords
-           :model-triangles
-           :model-gl-commands
-           :model-frames
-           :model-gl-tex-ids
-           :model-evaluated-p
-           :print-model-info
-           :triangle-vertex-indices
-           :triangle-st-indices
-           :vertex-v
-           :vertex-n
-           :frame-scale
-           :frame-translate
-           :frame-name
-           :frame-vertices
-           :*anorms*))
+;;; Added Packaging system (May 05 2010) Nikhil J. Shetty <nikhil.j.shetty@gmail.com>
 
 (in-package :id-md2)
-
-(load "gl-texture.lisp")
-(load "anorms.lisp")
-(load "bounding-box.lisp")
 
 (defconstant +magic-number+ 844121161)
 

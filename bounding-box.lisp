@@ -4,22 +4,7 @@
 ;;;            
 ;;; S. Edward Dolan <bytecolor@gmail.com>
 ;;; Wednesday, April 28 2010
-
-(defpackage :bounding-box
-  (:nicknames :bb)
-  (:use :cl)
-  (:export :find-bbox
-           :find-union
-           :find-union-2
-           :expand-bbox
-           :bbox-coords
-           :bbox-center
-           :bbox-left
-           :bbox-right
-           :bbox-bottom
-           :bbox-top
-           :bbox-front
-           :bbox-back))
+;;; Added Packaging system (May 05 2010) Nikhil J. Shetty <nikhil.j.shetty@gmail.com>
 
 (in-package :bounding-box)
 

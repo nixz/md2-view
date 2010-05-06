@@ -2,17 +2,10 @@
 ;;;
 ;;; S. Edward Dolan <bytecolor@gmail.com>
 ;;; Monday, April 26 2010
-
-(defpackage :gl-texture
-  (:nicknames :gltex)
-  (:use :cl)
-  (:export :load-texture))
+;;; Added Packaging system (May 05 2010) Nikhil J. Shetty <nikhil.j.shetty@gmail.com>
 
 (in-package :gl-texture)
 
-(require :lispbuilder-sdl)
-(require :lispbuilder-sdl-image)
-(require :cl-opengl)
 
 ;; TODO: handle tga
 (defun load-texture (file-name)

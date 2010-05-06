@@ -2,19 +2,10 @@
 ;;;
 ;;; S. Edward Dolan <bytecolor@gmail.com>
 ;;; Sunday, April 25 2010
-
-(defpackage :md2-view
-  (:use :cl)
-  (:export :run))
+;;; Added Packaging system (May 05 2010) Nikhil J. Shetty <nikhil.j.shetty@gmail.com>
 
 (in-package :md2-view)
 
-(require :lispbuilder-sdl)
-(require :cl-opengl)
-(load "3d-math.lisp")
-(load "id-md2.lisp")
-(load "cad-view.lisp")
-(load "bounding-box.lisp")
 
 ;; some of these state vars I don't really need, could use gl:get-foo
 (defparameter *models* nil)            ; list of loaded model instances

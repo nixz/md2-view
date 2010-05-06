@@ -6,32 +6,8 @@
 ;;; 
 ;;; S. Edward Dolan <bytecolor@gmail.com>
 ;;; Thursday, April  8 2010
-
-(defpackage 3d-math
-  (:nicknames :3d)
-  (:use :cl)
-  (:export +i-axis+ +j-axis+ +k-axis+
-           vx vy vz
-           mi mj mk mt
-           cross-product
-           make-4x4-matrix
-           make-4x4-matrix-from-gl-matrix
-           normalize
-           normalize!
-           magnitude
-           make-vector
-           dot-product
-           v+v v-v v*s m*v m*m
-           vector&rotation-angle->matrix
-           trans->matrix
-           scale->matrix
-           x-rot->matrix
-           y-rot->matrix
-           z-rot->matrix
-           euler-angles->matrix
-           matrix->euler-angles
-           clamp
-           d->r))
+;;;
+;;; Added Packaging system (May 05 2010) Nikhil J. Shetty <nikhil.j.shetty@gmail.com>
 
 (in-package :3d-math)
 

@@ -4,37 +4,10 @@
 ;;;    
 ;;; S. Edward Dolan <bytecolor@gmail.com>
 ;;; Friday, April 23 2010
-
-(defpackage :cad-view
-  (:nicknames :cv)
-  (:use :cl)
-  (:export init
-           resize
-           rotate
-           zoom
-           pan
-           start-zoom-box
-           update-zoom-box
-           finish-zoom-box
-           zoom-box-p1
-           zoom-box-p2
-           box-zooming-p
-           fit
-           fit-zoom-box
-           matrix
-           set-center-of-rotation
-           top-view
-           bottom-view
-           right-view
-           left-view
-           front-view
-           back-view
-           iso-view))
+;;; Added Packaging system (May 05 2010) Nikhil J. Shetty <nikhil.j.shetty@gmail.com>
 
 (in-package :cad-view)
-
 (require :cl-opengl)
-(load "3d-math.lisp")
 
 (defparameter *win-w* nil)
 (defparameter *win-h* nil)
